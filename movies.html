@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .movie-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+
+        }
+    .movie-card {
+        width: 10%;
+        margin: 20px;
+        border-radius: 10%;
+    }
+</style>
+
+<body>
+    <!-- --------------------------------------using array----------------------------------------- -->
+    <div id="output" class="movie-container"></div>
+</body>
+<script>
+    let pageNum = 1;
+    let APIkey = 'fe79683414093c5260ff29864964c716';
+    let isLoading = false;
+    let movies = [];
+    let html = "";
+
+
+    const getMovies = async (page) => {
+        if (isLoading) return;
+        isLoading = true;
+        let url = `https://api.themoviedb.org/3/discover/movie?api_key=${APIkey}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${page}`;
+
+        fetch(url)
+            .then(results => results.json())
+            .then(data => {
+                console.log(data)
+                movies = [...movies, ...data.results] //movies - empty, movies destructure, data.results(array) destructure movies-array of objects concatinating the previous results with the new ones
+                const movieContainer = document.getElementById("output");
+                
+                movies.forEach((movie) => {
+                    html += `
+                        <img class="movie-card" src="https://image.tmdb.org/t/p/w154/${movie.poster_path}"> `
+                    // console.log(newMovie)
+                    if (movie.poster_path) {
+                        movieContainer.innerHTML=html;
+                    }
+                })
+                pageNum++;
+                isLoading = false
+                console.log(document.querySelectorAll("img"), "movieContainermovieContainermovieContainer", movies);
+
+            });
+    }
+    let lastScrollTop = window.scrollY || document.documentElement.scrollTop; //global because we dont want to initialize it again & again
+
+    const infiniteScroll = () => {
+        if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight) {
+            getMovies(pageNum)
+        }
+    }
+
+    window.addEventListener('scroll', infiniteScroll);
+
+    window.onload = () => {
+        getMovies(pageNum);
+    }
+
+</script>
+
+</html>

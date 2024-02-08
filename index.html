@@ -22,6 +22,7 @@
 </head>
 
 <body>
+    <!-- -----------------Using Append---------------- -->
     <div id="output" class="movie-container"></div>
 
     <script>
@@ -30,23 +31,31 @@
         let isLoading = false;
 
         const getMovies = async (page, limit = 20, scroll) => {
+            console.log("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+
             if (isLoading) return;
-            isLoading = true;
+            isLoading = true; //url is inside the asyn function as the parameters have to be passed
             let url = `https://api.themoviedb.org/3/discover/movie?api_key=${APIkey}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${page}&limit=${limit}`;
 
             try {
                 const response = await fetch(url);
+                console.log(url)
                 const data = await response.json();
                 console.log(data);
 
                 const movieContainer = document.getElementById("output");
-                data.results.forEach(movie => {
+                data.results.forEach((movie, ind) => {
                     if (movie.poster_path) {
                         const img = document.createElement('img');
                         img.src = `https://image.tmdb.org/t/p/w154/${movie.poster_path}`;
                         img.classList.add('movie-card');
                         movieContainer.appendChild(img);
+                        // // movieContainer.innerHTML=`miss kanika ${ind}`
+                        // movieContainer.appendChild(`<h2>miss kanika ${ind}</h2>`)
+
+
                     }
+                    // movieContainer.innerHTML=`miss kanika ${1234}`
                 });
                 scroll == "scrollUp" ? pageNum-- : pageNum++;
                 isLoading = false;
@@ -61,14 +70,15 @@
         const infiniteScroll = () => {
             const scrollTopPosition = window.scrollY || document.documentElement.scrollTop;
             // Check if user has scrolled to the bottom of the page
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-                getMovies(pageNum, 20, "scrolDown");
+            if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight) {
+                // you're at the bottom of the page
+                getMovies(pageNum)
             }
             else if (scrollTopPosition < lastScrollTop) {
                 // getMovies(pageNum, 20, "scrollUp");
 
             }
-            // lastScrollTop = scrollTopPosition <= 0 ? 0 : scrollTopPosition;
+            lastScrollTop = scrollTopPosition <= 0 ? 0 : scrollTopPosition;
         }
 
         window.addEventListener('scroll', infiniteScroll);
